@@ -280,7 +280,7 @@
 
     document.getElementById('couponBtn').addEventListener('click', applyCoupon);
     document.getElementById('couponInput').addEventListener('keypress', (e)=>{ if(e.key==='Enter') applyCoupon(); });
-    document.getElementById('checkoutBtn').addEventListener('click', ()=> showToast('Em breve: checkout completo 🚀'));
+    document.getElementById('checkoutBtn').addEventListener('click', ()=> window.location.href = 'checkout.html');
   }
 
   function applyCoupon(){
