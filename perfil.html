@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brasa & Cia — Perfil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --carvao: #1A1410;
+    --carvao-2: #241B14;
+    --carvao-3: #2E2219;
+    --creme: #FFF8F0;
+    --creme-dim: #D8CCC0;
+    --fogo: #FF6B35;
+    --chama: #FFB627;
+    --brasa: #C1272D;
+    --linha: rgba(255,248,240,0.08);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--carvao); color:var(--creme);
+    font-family:'Inter', sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2{ font-family:'Archivo Black', sans-serif; letter-spacing:-0.02em; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; border:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(26,20,16,0.88); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--linha);
+    padding:16px 20px; font-size:15px; font-weight:800;
+  }
+  .topbar-inner{ max-width:1100px; margin:0 auto; }
+
+  .wrap{ max-width:560px; margin:0 auto; padding:24px 20px; }
+
+  .profile-head{ display:flex; align-items:center; gap:16px; margin-bottom:28px; }
+  .avatar{
+    width:64px; height:64px; border-radius:50%;
+    background:linear-gradient(145deg, var(--fogo), var(--brasa));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Archivo Black', sans-serif; font-size:24px; color:var(--carvao);
+    flex-shrink:0;
+  }
+  .profile-name{ font-size:18px; font-weight:800; }
+  .profile-phone{ font-size:12.5px; color:var(--creme-dim); margin-top:2px; }
+
+  .menu-group{
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:16px; overflow:hidden; margin-bottom:18px;
+  }
+  .menu-item{
+    display:flex; align-items:center; gap:14px;
+    padding:15px 16px;
+    border-bottom:1px solid var(--linha);
+    font-size:13.5px; font-weight:600;
+  }
+  .menu-item:last-child{ border-bottom:none; }
+  .menu-item svg{ flex-shrink:0; opacity:0.7; }
+  .menu-item .chev{ margin-left:auto; opacity:0.4; }
+  .menu-item:hover{ background:var(--carvao-3); }
+
+  .group-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--creme-dim); font-weight:700; margin:0 0 10px 4px;
+  }
+
+  .logout{
+    width:100%; text-align:center; padding:14px;
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:16px; color:var(--brasa); font-size:13.5px; font-weight:700;
+    margin-top:8px;
+  }
+  .logout:hover{ background:var(--carvao-3); }
+
+  .bnav-spacer{ height:78px; }
+  .bnav{
+    position:fixed; left:0; right:0; bottom:0; z-index:80;
+    background:rgba(26,20,16,0.92); backdrop-filter:blur(14px);
+    border-top:1px solid rgba(255,248,240,0.08);
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+    display:flex; justify-content:space-around; align-items:center;
+  }
+</style>
+</head>
+<body>
+
+  <header class="topbar"><div class="topbar-inner">🔥 Brasa & Cia</div></header>
+
+  <main class="wrap">
+    <div class="profile-head">
+      <div class="avatar">JM</div>
+      <div>
+        <div class="profile-name">João Mendes</div>
+        <div class="profile-phone">(11) 98765-4321</div>
+      </div>
+    </div>
+
+    <div class="group-label">Pedidos</div>
+    <div class="menu-group">
+      <a href="#" class="menu-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3z"></path><path d="M3 11h18v10H3z"></path><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+        Meus pedidos
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+      <a href="#" class="menu-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        Endereços salvos
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+    </div>
+
+    <div class="group-label">Conta</div>
+    <div class="menu-group">
+      <a href="#" class="menu-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Editar dados pessoais
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+      <a href="#" class="menu-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        Formas de pagamento
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+      <a href="fidelidade.html" class="menu-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        Programa de fidelidade
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+    </div>
+
+    <button class="logout">Sair da conta</button>
+  </main>
+
+<script src="bottom-nav.js"></script>
+<script>
+  BottomNav.render('perfil');
+</script>
+</body>
+</html>

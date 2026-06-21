@@ -1,0 +1,569 @@
+DeliveryHub SaaS - MVP
+
+Visão Geral
+
+Desenvolver uma plataforma SaaS de Cardápio Digital e Pedidos Online para restaurantes, hamburguerias, pizzarias, sushi, açaíterias, cafeterias e estabelecimentos similares.
+
+O sistema deve permitir que cada empresa tenha sua própria loja online, receba pedidos diretamente dos clientes e gerencie todo o processo através de um painel administrativo moderno.
+
+O projeto deve ser construído já preparado para operar como SaaS Multiempresa (Multi-Tenant).
+
+---
+
+Objetivos
+
+- Eliminar dependência de marketplaces.
+- Permitir pedidos online próprios.
+- Disponibilizar cardápio digital responsivo.
+- Oferecer painel administrativo completo.
+- Permitir cobrança recorrente futura.
+- Possuir arquitetura escalável.
+
+---
+
+Tecnologias
+
+Frontend
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Lucide Icons
+
+Backend
+
+- Supabase
+- PostgreSQL
+- Row Level Security (RLS)
+
+Autenticação
+
+- Supabase Auth
+
+Hospedagem
+
+- Vercel
+
+Pagamentos
+
+- Mercado Pago
+
+---
+
+Arquitetura
+
+Modelo SaaS Multiempresa
+
+Cada empresa deve possuir:
+
+- Produtos próprios
+- Categorias próprias
+- Pedidos próprios
+- Clientes próprios
+- Cupons próprios
+- Programa de fidelidade próprio
+
+Todos os dados devem ser isolados por empresa utilizando Multi-Tenant.
+
+---
+
+Tipos de Usuário
+
+Cliente
+
+Pode:
+
+- Navegar no cardápio
+- Pesquisar produtos
+- Adicionar ao carrinho
+- Aplicar cupom
+- Finalizar pedido
+- Efetuar pagamento
+- Consultar pontos de fidelidade
+
+---
+
+Empresa
+
+Pode:
+
+- Gerenciar produtos
+- Gerenciar categorias
+- Gerenciar pedidos
+- Gerenciar cupons
+- Gerenciar programa de fidelidade
+- Visualizar dashboard
+
+---
+
+Administrador da Plataforma
+
+Pode:
+
+- Gerenciar empresas
+- Ativar ou desativar empresas
+- Visualizar métricas gerais
+- Controlar planos
+
+---
+
+Área do Cliente
+
+Página Inicial
+
+Exibir:
+
+- Logo da empresa
+- Banner principal
+- Categorias
+- Produtos em destaque
+
+---
+
+Cardápio
+
+Funcionalidades:
+
+- Busca por produtos
+- Filtro por categoria
+- Listagem responsiva
+
+Categorias:
+
+- Hambúrgueres
+- Pizzas
+- Bebidas
+- Sobremesas
+- Açaí
+- Sushi
+
+---
+
+Página de Produto
+
+Exibir:
+
+- Foto
+- Nome
+- Descrição
+- Preço
+
+Permitir:
+
+- Alterar quantidade
+- Inserir observações
+
+Exemplo:
+
+Observação:
+Sem cebola
+
+---
+
+Carrinho
+
+Exibir:
+
+- Itens
+- Quantidades
+- Subtotal
+- Taxa de entrega
+- Total
+
+Permitir:
+
+- Alterar quantidade
+- Remover item
+
+---
+
+Checkout
+
+Campos:
+
+- Nome
+- WhatsApp
+- Endereço
+- Número
+- Complemento
+- Bairro
+
+Opções:
+
+- Entrega
+- Retirada
+
+Pagamento:
+
+- Pix
+- Cartão de Crédito
+- Cartão de Débito
+
+---
+
+Programa de Fidelidade
+
+Configuração
+
+A empresa poderá configurar:
+
+- Quantidade de pontos por real gasto
+- Regras de resgate
+
+Exemplo:
+
+1 real = 1 ponto
+
+---
+
+Recompensas
+
+Exemplos:
+
+- 100 pontos = Refrigerante
+- 200 pontos = Batata
+- 500 pontos = Hambúrguer
+
+---
+
+Sistema de Cupons
+
+Tipos de Cupom
+
+Valor Fixo
+
+Exemplo:
+
+R$10 OFF
+
+---
+
+Percentual
+
+Exemplo:
+
+10% OFF
+
+---
+
+Frete Grátis
+
+Exemplo:
+
+Entrega gratuita
+
+---
+
+Configurações
+
+- Código
+- Tipo
+- Valor
+- Data de validade
+- Quantidade máxima de usos
+- Ativo ou inativo
+
+---
+
+Gestão de Pedidos
+
+Status
+
+Pedido recebido
+
+Pedido em preparo
+
+Pedido pronto
+
+Saiu para entrega
+
+Pedido entregue
+
+Pedido cancelado
+
+---
+
+Recursos
+
+- Atualização em tempo real
+- Ordenação por horário
+- Filtros por status
+
+---
+
+Painel Administrativo
+
+Dashboard
+
+Exibir:
+
+- Pedidos do dia
+- Faturamento do dia
+- Ticket médio
+- Produtos mais vendidos
+
+---
+
+Gestão de Produtos
+
+CRUD completo.
+
+Campos:
+
+- Nome
+- Descrição
+- Preço
+- Imagem
+- Categoria
+- Disponível
+
+---
+
+Gestão de Categorias
+
+CRUD completo.
+
+Campos:
+
+- Nome
+- Ícone opcional
+
+---
+
+Gestão de Cupons
+
+CRUD completo.
+
+---
+
+Gestão de Fidelidade
+
+CRUD completo.
+
+---
+
+Gestão de Pedidos
+
+Visualizar:
+
+- Cliente
+- Telefone
+- Valor
+- Status
+- Data
+
+Permitir:
+
+- Alterar status
+
+---
+
+Painel Master
+
+Empresas
+
+Visualizar:
+
+- Nome
+- Plano
+- Status
+- Quantidade de pedidos
+
+Permitir:
+
+- Ativar empresa
+- Suspender empresa
+- Excluir empresa
+
+---
+
+Dashboard Global
+
+Exibir:
+
+- Total de empresas
+- Total de pedidos
+- Total faturado
+- Empresas ativas
+
+---
+
+Integração Mercado Pago
+
+Pix
+
+Gerar QR Code automaticamente.
+
+Confirmar pagamento automaticamente.
+
+---
+
+Cartão
+
+Permitir pagamento via:
+
+- Crédito
+- Débito
+
+---
+
+Webhooks
+
+Implementar webhooks para atualização automática dos pedidos após confirmação do pagamento.
+
+---
+
+URLs
+
+Formato:
+
+/loja/{slug}
+
+Exemplos:
+
+/loja/pizzaria-do-centro
+
+/loja/burger-house
+
+---
+
+QR Code
+
+Cada loja deve possuir:
+
+- Link público
+- QR Code automático
+
+Utilizado para divulgação e mesas do estabelecimento.
+
+---
+
+PWA
+
+O sistema deve funcionar como aplicativo instalável.
+
+Requisitos:
+
+- Manifest
+- Ícones
+- Offline básico
+- Instalação no Android e iPhone
+
+---
+
+Banco de Dados
+
+Empresas
+
+- id
+- nome
+- slug
+- logo
+- whatsapp
+- endereco
+- taxa_entrega
+- plano
+- ativo
+- created_at
+
+---
+
+Categorias
+
+- id
+- empresa_id
+- nome
+
+---
+
+Produtos
+
+- id
+- empresa_id
+- categoria_id
+- nome
+- descricao
+- preco
+- imagem
+- disponivel
+
+---
+
+Clientes
+
+- id
+- empresa_id
+- nome
+- telefone
+- pontos
+
+---
+
+Cupons
+
+- id
+- empresa_id
+- codigo
+- tipo
+- valor
+- validade
+- ativo
+
+---
+
+Pedidos
+
+- id
+- empresa_id
+- cliente_id
+- subtotal
+- desconto
+- frete
+- total
+- status
+- created_at
+
+---
+
+ItensPedido
+
+- id
+- pedido_id
+- produto_id
+- quantidade
+- preco_unitario
+
+---
+
+Design
+
+Objetivos:
+
+- Visual premium
+- Mobile First
+- UX semelhante aos melhores aplicativos de delivery
+- Interface moderna
+- Componentes reutilizáveis
+- Navegação simples
+
+---
+
+Fora do Escopo do MVP
+
+Não implementar nesta versão:
+
+- Aplicativo nativo Android
+- Aplicativo nativo iOS
+- Chatbot IA
+- Integração iFood
+- Integração Uber Eats
+- Gestão de entregadores
+- Rastreamento em mapa
+- Marketplace multi-restaurantes
+
+---
+
+Entrega Esperada
+
+O resultado final deve ser um sistema SaaS Multiempresa totalmente funcional, pronto para cadastro de restaurantes, recebimento de pedidos online, pagamentos via Mercado Pago, cupons de desconto, fidelidade, QR Code próprio e painel administrativo completo.
