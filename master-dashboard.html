@@ -279,8 +279,8 @@
 
   <aside class="sidebar">
     <div class="sidebar-title">🔥 Master</div>
-    <a href="#" class="sidebar-item active" data-section="companies">🏢 Empresas</a>
-    <a href="#" class="sidebar-item" data-section="analytics">📊 Analytics</a>
+    <a href="#" class="sidebar-item active" data-section="analytics">📊 Dashboard</a>
+    <a href="#" class="sidebar-item" data-section="companies">🏢 Empresas</a>
     <a href="#" class="sidebar-item" data-section="settings">⚙️ Configurações</a>
     <div style="margin-top:40px; padding-top:20px; border-top:1px solid var(--linha); font-size:11.5px; color:var(--creme-dim);">
       Master Control v1.0<br>
@@ -296,12 +296,9 @@
 
     <div class="wrap">
 
-      <!-- SEÇÃO: EMPRESAS -->
-      <section class="section active" id="companies">
-        <div style="margin-bottom:24px;">
-          <h2 style="font-size:20px; margin-bottom:6px;">Gerenciar Empresas</h2>
-          <p style="font-size:13px; color:var(--creme-dim);">Ative, desative ou edite informações das empresas parceiras.</p>
-        </div>
+      <!-- SEÇÃO: ANALYTICS / DASHBOARD -->
+      <section class="section active" id="analytics">
+        <h2 style="font-size:20px; margin-bottom:20px;">Dashboard</h2>
 
         <div class="stats-header">
           <div class="stat-card">
@@ -320,6 +317,33 @@
             <div class="stat-card-label">Receita total</div>
             <div class="stat-card-value" id="statRevenue">R$ 0</div>
           </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Total pedidos</div>
+            <div class="stat-card-value" id="statOrders">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Ticket médio</div>
+            <div class="stat-card-value" id="statAvg">R$ 0</div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
+          <div style="background:var(--carvao-2); border:1px solid var(--linha); border-radius:16px; padding:20px;">
+            <h3 style="font-size:14px; margin-bottom:14px;">Receita por empresa</h3>
+            <div id="revenueList"></div>
+          </div>
+          <div style="background:var(--carvao-2); border:1px solid var(--linha); border-radius:16px; padding:20px;">
+            <h3 style="font-size:14px; margin-bottom:14px;">Pedidos por empresa</h3>
+            <div id="ordersByCompany"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO: EMPRESAS -->
+      <section class="section" id="companies">
+        <div style="margin-bottom:24px;">
+          <h2 style="font-size:20px; margin-bottom:6px;">Gerenciar Empresas</h2>
+          <p style="font-size:13px; color:var(--creme-dim);">Ative, desative ou edite informações das empresas parceiras.</p>
         </div>
 
         <div style="display:flex; gap:12px; margin-bottom:20px;">
@@ -328,18 +352,6 @@
         </div>
 
         <div class="companies-grid" id="companiesList"></div>
-      </section>
-
-      <!-- SEÇÃO: ANALYTICS -->
-      <section class="section" id="analytics">
-        <h2 style="font-size:20px; margin-bottom:20px;">Analytics</h2>
-
-        <div class="companies-grid" style="grid-template-columns:1fr;">
-          <div style="background:var(--carvao-2); border:1px solid var(--linha); border-radius:16px; padding:24px;">
-            <h3 style="margin-bottom:16px;">Receita por empresa (últimos 30 dias)</h3>
-            <div id="revenueList"></div>
-          </div>
-        </div>
       </section>
 
       <!-- SEÇÃO: CONFIGURAÇÕES -->
@@ -515,21 +527,36 @@
     const active = companies.filter(c => c.ativo).length;
     const inactive = total - active;
     const revenue = companies.reduce((s, c) => s + c.receita, 0);
+    const orders = companies.reduce((s, c) => s + c.pedidos, 0);
+    const avg = total ? revenue / total : 0;
 
     document.getElementById('statTotal').textContent = total;
     document.getElementById('statActive').textContent = active;
     document.getElementById('statInactive').textContent = inactive;
     document.getElementById('statRevenue').textContent = fmt(revenue);
+    document.getElementById('statOrders').textContent = orders;
+    document.getElementById('statAvg').textContent = fmt(avg);
 
-    // Analytics
     const revenueList = document.getElementById('revenueList');
     if(revenueList){
       revenueList.innerHTML = companies
         .sort((a, b) => b.receita - a.receita)
         .map(c => `
-          <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--linha);">
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--linha); font-size:13px;">
             <span>${c.nome}</span>
             <span style="font-weight:800; color:var(--fogo);">${fmt(c.receita)}</span>
+          </div>
+        `).join('');
+    }
+
+    const ordersList = document.getElementById('ordersByCompany');
+    if(ordersList){
+      ordersList.innerHTML = companies
+        .sort((a, b) => b.pedidos - a.pedidos)
+        .map(c => `
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--linha); font-size:13px;">
+            <span>${c.nome}</span>
+            <span style="font-weight:800; color:var(--chama);">${c.pedidos} pedidos</span>
           </div>
         `).join('');
     }

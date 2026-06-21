@@ -88,6 +88,76 @@
     padding:8px 10px calc(8px + env(safe-area-inset-bottom));
     display:flex; justify-content:space-around; align-items:center;
   }
+
+  /* Seções internas */
+  .page-section{ display:none; }
+  .page-section.active{ display:block; }
+
+  .section-header{
+    display:flex; align-items:center; gap:12px; margin-bottom:20px;
+  }
+  .back-btn{
+    width:34px; height:34px; border-radius:10px;
+    background:var(--carvao-2); border:1px solid var(--linha);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; flex-shrink:0;
+  }
+
+  .order-card{
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:14px; padding:16px; margin-bottom:12px;
+  }
+  .order-header{ display:flex; justify-content:space-between; margin-bottom:8px; }
+  .order-id{ font-family:'JetBrains Mono', monospace; font-weight:800; font-size:13px; }
+  .order-status{
+    font-size:10.5px; font-weight:700; text-transform:uppercase;
+    padding:3px 10px; border-radius:20px; letter-spacing:0.05em;
+  }
+  .order-status.entregue{ background:rgba(74,222,128,0.15); color:#4ADE80; }
+  .order-status.preparo{ background:rgba(255,182,39,0.15); color:var(--chama); }
+  .order-status.cancelado{ background:rgba(193,39,45,0.15); color:var(--brasa); }
+  .order-items{ font-size:12.5px; color:var(--creme-dim); line-height:1.5; margin-bottom:8px; }
+  .order-total{ font-family:'JetBrains Mono', monospace; font-weight:800; color:var(--chama); font-size:13px; }
+
+  .address-card{
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:14px; padding:16px; margin-bottom:12px;
+  }
+  .address-main{ font-weight:700; font-size:13.5px; margin-bottom:4px; }
+  .address-detail{ font-size:12px; color:var(--creme-dim); line-height:1.5; }
+  .address-tag{
+    display:inline-block; margin-top:8px; padding:3px 10px;
+    border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase;
+    background:var(--fogo); color:var(--carvao);
+  }
+
+  .payment-card{
+    display:flex; align-items:center; gap:14px;
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:14px; padding:16px; margin-bottom:12px;
+  }
+  .payment-icon{ font-size:24px; }
+  .payment-info{ flex:1; }
+  .payment-name{ font-weight:700; font-size:13.5px; }
+  .payment-desc{ font-size:11.5px; color:var(--creme-dim); margin-top:2px; }
+
+  .form-group{ margin-bottom:16px; }
+  .form-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--creme-dim); font-weight:700; margin-bottom:6px; display:block; }
+  .form-input{
+    width:100%; background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:12px; padding:12px 14px; color:var(--creme); font-size:13.5px;
+    outline:none; transition:border-color 0.2s;
+  }
+  .form-input:focus{ border-color:var(--fogo); }
+
+  .toast{
+    position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--creme); color:var(--carvao);
+    padding:13px 20px; border-radius:100px; font-size:13px; font-weight:700;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4); z-index:200;
+    opacity:0; pointer-events:none; transition:opacity 0.25s, transform 0.25s;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -95,49 +165,222 @@
   <header class="topbar"><div class="topbar-inner">🔥 Brasa & Cia</div></header>
 
   <main class="wrap">
-    <div class="profile-head">
-      <div class="avatar">JM</div>
-      <div>
-        <div class="profile-name">João Mendes</div>
-        <div class="profile-phone">(11) 98765-4321</div>
+
+    <!-- ===== PERFIL (TELA INICIAL) ===== -->
+    <div id="profileMain" class="page-section active">
+      <div class="profile-head">
+        <div class="avatar">JM</div>
+        <div>
+          <div class="profile-name">João Mendes</div>
+          <div class="profile-phone">(11) 98765-4321</div>
+        </div>
       </div>
+
+      <div class="group-label">Pedidos</div>
+      <div class="menu-group">
+        <a href="#" class="menu-item" data-section="orders">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3z"></path><path d="M3 11h18v10H3z"></path><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+          Meus pedidos
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="#" class="menu-item" data-section="addresses">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          Endereços salvos
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+      </div>
+
+      <div class="group-label">Conta</div>
+      <div class="menu-group">
+        <a href="#" class="menu-item" data-section="edit-profile">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          Editar dados pessoais
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="#" class="menu-item" data-section="payments">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          Formas de pagamento
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="fidelidade.html" class="menu-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          Programa de fidelidade
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+      </div>
+
+      <button class="logout">Sair da conta</button>
     </div>
 
-    <div class="group-label">Pedidos</div>
-    <div class="menu-group">
-      <a href="#" class="menu-item">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3z"></path><path d="M3 11h18v10H3z"></path><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-        Meus pedidos
-        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </a>
-      <a href="#" class="menu-item">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-        Endereços salvos
-        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </a>
+    <!-- ===== SEÇÃO: MEUS PEDIDOS ===== -->
+    <div id="sectionOrders" class="page-section">
+      <div class="section-header">
+        <button class="back-btn" onclick="showProfile()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <h2 style="font-size:18px;">Meus pedidos</h2>
+      </div>
+      <div id="ordersList"></div>
     </div>
 
-    <div class="group-label">Conta</div>
-    <div class="menu-group">
-      <a href="#" class="menu-item">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        Editar dados pessoais
-        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </a>
-      <a href="#" class="menu-item">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-        Formas de pagamento
-        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </a>
-      <a href="fidelidade.html" class="menu-item">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        Programa de fidelidade
-        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </a>
+    <!-- ===== SEÇÃO: ENDEREÇOS SALVOS ===== -->
+    <div id="sectionAddresses" class="page-section">
+      <div class="section-header">
+        <button class="back-btn" onclick="showProfile()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <h2 style="font-size:18px;">Endereços salvos</h2>
+      </div>
+      <div id="addressesList"></div>
     </div>
 
-    <button class="logout">Sair da conta</button>
+    <!-- ===== SEÇÃO: EDITAR DADOS ===== -->
+    <div id="sectionEditProfile" class="page-section">
+      <div class="section-header">
+        <button class="back-btn" onclick="showProfile()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <h2 style="font-size:18px;">Editar dados pessoais</h2>
+      </div>
+      <form id="editProfileForm" onsubmit="saveProfile(event)">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" id="editName" class="form-input" value="João Mendes" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone</label>
+          <input type="tel" id="editPhone" class="form-input" value="(11) 98765-4321" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="editEmail" class="form-input" value="joao@email.com">
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%; padding:14px; border-radius:14px; font-size:13.5px; font-weight:800; background:var(--fogo); color:var(--carvao); cursor:pointer;">Salvar alterações</button>
+      </form>
+    </div>
+
+    <!-- ===== SEÇÃO: FORMAS DE PAGAMENTO ===== -->
+    <div id="sectionPayments" class="page-section">
+      <div class="section-header">
+        <button class="back-btn" onclick="showProfile()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <h2 style="font-size:18px;">Formas de pagamento</h2>
+      </div>
+      <div id="paymentsList"></div>
+    </div>
+
   </main>
+
+  <div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+  // Dados de exemplo
+  const orders = [
+    { id:'PED-001', status:'entregue', date:'15/06/2026', items:['Brasa Bacon x2', 'Coca-Cola Lata x2'], total:69.80 },
+    { id:'PED-002', status:'entregue', date:'12/06/2026', items:['Pizza Calabresa x1', 'Suco Natural x1'], total:51.50 },
+    { id:'PED-003', status:'preparo', date:'Hoje', items:['Açaí Power 700ml x1', 'Brownie com Sorvete x1'], total:42.90 },
+    { id:'PED-004', status:'cancelado', date:'08/06/2026', items:['Combo Salmão (20pç) x1'], total:54.90 },
+  ];
+
+  const savedAddresses = [
+    { id:1, label:'Casa', street:'Rua das Flores, 123', city:'São Paulo, SP', zip:'01234-567', main:true },
+    { id:2, label:'Trabalho', street:'Av. Paulista, 1000', city:'São Paulo, SP', zip:'01310-100', main:false },
+  ];
+
+  const savedPayments = [
+    { id:1, type:'card', brand:'Mastercard', last4:'3456', name:'João M Silva', main:true },
+    { id:2, type:'card', brand:'Visa', last4:'9012', name:'João M Silva', main:false },
+  ];
+
+  const fmt = (n) => 'R$ ' + n.toFixed(2).replace('.', ',');
+
+  const statusLabels = { entregue:'Entregue', preparo:'Preparando', cancelado:'Cancelado' };
+
+  // Navegação: abrir seção
+  document.querySelectorAll('[data-section]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const section = item.dataset.section;
+      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('section' + section.charAt(0).toUpperCase() + section.slice(1)).classList.add('active');
+      renderSection(section);
+    });
+  });
+
+  function showProfile(){
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('profileMain').classList.add('active');
+  }
+
+  function renderSection(section){
+    if(section === 'orders') renderOrders();
+    else if(section === 'addresses') renderAddresses();
+    else if(section === 'payments') renderPayments();
+  }
+
+  function renderOrders(){
+    const list = document.getElementById('ordersList');
+    list.innerHTML = orders.map(o => `
+      <div class="order-card">
+        <div class="order-header">
+          <span class="order-id">${o.id}</span>
+          <span class="order-status ${o.status}">${statusLabels[o.status]}</span>
+        </div>
+        <div style="font-size:11.5px; color:var(--creme-dim); margin-bottom:6px;">${o.date}</div>
+        <div class="order-items">${o.items.join('<br>')}</div>
+        <div class="order-total">${fmt(o.total)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderAddresses(){
+    const list = document.getElementById('addressesList');
+    list.innerHTML = savedAddresses.map(a => `
+      <div class="address-card">
+        <div class="address-main">${a.label}</div>
+        <div class="address-detail">${a.street}<br>${a.city}<br>CEP: ${a.zip}</div>
+        ${a.main ? '<div class="address-tag">Principal</div>' : ''}
+      </div>
+    `).join('');
+  }
+
+  function renderPayments(){
+    const list = document.getElementById('paymentsList');
+    list.innerHTML = savedPayments.map(p => `
+      <div class="payment-card">
+        <div class="payment-icon">${p.brand === 'Visa' ? '💳' : '💳'}</div>
+        <div class="payment-info">
+          <div class="payment-name">${p.brand} •••• ${p.last4}</div>
+          <div class="payment-desc">${p.name} ${p.main ? '· Principal' : ''}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function saveProfile(e){
+    e.preventDefault();
+    const name = document.getElementById('editName').value;
+    const phone = document.getElementById('editPhone').value;
+    document.querySelector('.profile-name').textContent = name;
+    document.querySelector('.profile-phone').textContent = phone;
+    showToast('Dados atualizados com sucesso');
+    showProfile();
+  }
+
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    toastMsg.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  // Sair da conta
+  document.querySelector('.logout').addEventListener('click', () => {
+    if(confirm('Sair da conta?')) window.location.href = 'index.html';
+  });
+</script>
 
 <script src="bottom-nav.js"></script>
 <script>
