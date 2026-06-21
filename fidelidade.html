@@ -179,10 +179,14 @@
       </div>
     </div>
 
+    <div id="minimumNotice" style="background:rgba(255,182,39,0.1); border:1px solid rgba(255,182,39,0.3); border-radius:12px; padding:12px 14px; font-size:12.5px; color:var(--creme-dim); margin-bottom:16px; display:none;">
+      💡 Pedido mínimo de <b style="color:var(--chama);">R$ 20,00</b> para resgatar recompensas.
+    </div>
+
     <div class="howto">
       <div class="howto-title">Como funciona</div>
       <div class="howto-item">• <span><b>1 real gasto</b> = 1 ponto acumulado automaticamente em cada pedido pago.</span></div>
-      <div class="howto-item">• <span>Pontos resgatados são <b>descontados na hora</b> e não acumulam de volta.</span></div>
+      <div class="howto-item">• <span>Recompensas resgatadas vão direto pro <b>carrinho</b>.</span></div>
       <div class="howto-item">• <span>Pontos não expiram (regra desta loja, pode variar por estabelecimento).</span></div>
     </div>
   </main>
@@ -191,16 +195,100 @@
 <script>
   BottomNav.render('fidelidade');
 
-  // Demonstração de interação: resgatar recompensa desbloqueada
-  document.querySelectorAll('.reward-action:not(.disabled)').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      btn.textContent = 'Resgatado ✓';
-      btn.style.background = 'var(--acai)';
-      btn.style.color = 'var(--creme)';
-      btn.disabled = true;
-      btn.style.cursor = 'default';
+  const VALOR_MINIMO = 20.00;
+
+  const REWARD_PRODUCTS = {
+    '🥤': { id:101, nome:'Refrigerante lata (recompensa)', preco:0 },
+    '🍟': { id:102, nome:'Porção de batata (recompensa)', preco:0 },
+    '🍔': { id:103, nome:'Hambúrguer Clássico grátis (recompensa)', preco:0 },
+  };
+
+  function loadCart(){
+    try{
+      const raw = localStorage.getItem('brasa_cart');
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+
+  function saveCart(cart){
+    try{ localStorage.setItem('brasa_cart', JSON.stringify(cart)); }catch(e){}
+  }
+
+  function cartSubtotal(){
+    const cart = loadCart();
+    if(window.PRODUCTS){
+      return cart.reduce((s,i)=>{
+        const p = window.PRODUCTS.find(x=>x.id===i.productId);
+        return p ? s + (p.preco * i.qty) : s;
+      }, 0);
+    }
+    return 0;
+  }
+
+  function checkMinimum(){
+    const cart = loadCart();
+    const subtotal = cartSubtotal();
+    const notice = document.getElementById('minimumNotice');
+    if(cart.length === 0 || subtotal < VALOR_MINIMO){
+      notice.style.display = 'block';
+      document.querySelectorAll('.reward-action:not(.disabled)').forEach(btn => {
+        btn.textContent = 'Resgatar';
+        btn.style.background = 'var(--fogo)';
+        btn.style.cursor = 'pointer';
+        btn.removeAttribute('disabled');
+      });
+      return false;
+    }
+    notice.style.display = 'none';
+    return true;
+  }
+
+  document.querySelectorAll('.reward-action:not(.disabled)').forEach(btn => {
+    btn.addEventListener('click', function(){
+      if(!checkMinimum()){
+        showToast(`Adicione pelo menos R$ ${VALOR_MINIMO.toFixed(2).replace('.',',')} ao carrinho`);
+        return;
+      }
+
+      const rewardCard = this.closest('.reward');
+      const icon = rewardCard.querySelector('.reward-icon').textContent;
+      const nome = rewardCard.querySelector('.reward-name').textContent;
+      const reward = REWARD_PRODUCTS[icon];
+
+      if(!reward) return;
+
+      const cart = loadCart();
+      cart.push({
+        uid: Date.now() + Math.random(),
+        productId: reward.id,
+        qty: 1,
+        obs: 'Recompensa',
+        nome: reward.nome,
+        preco: 0
+      });
+      saveCart(cart);
+
+      if(window.BottomNav) BottomNav.setCartCount(cart.reduce((s,i)=>s+i.qty, 0));
+
+      this.textContent = 'Resgatado ✓';
+      this.style.background = 'var(--acai)';
+      this.style.color = 'var(--creme)';
+      this.disabled = true;
+      this.style.cursor = 'default';
+
+      showToast(`${nome} adicionado ao carrinho!`);
     });
   });
+
+  checkMinimum();
+
+  function showToast(msg){
+    const div = document.createElement('div');
+    div.style.cssText = 'position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:var(--creme); color:var(--carvao); padding:13px 20px; border-radius:100px; font-size:13px; font-weight:700; box-shadow:0 10px 30px rgba(0,0,0,0.4); z-index:200; transition:opacity 0.25s;';
+    div.textContent = '✓ ' + msg;
+    document.body.appendChild(div);
+    setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 2200);
+  }
 </script>
 </body>
 </html>
