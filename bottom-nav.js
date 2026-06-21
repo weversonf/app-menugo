@@ -17,7 +17,7 @@
     {
       id: "cardapio",
       label: "Cardápio",
-      href: "cardapio.html",
+      href: "index.html",
       icon: `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"></path><path d="M3 11h18v10H3z"></path><line x1="9" y1="15" x2="15" y2="15"></line></svg>`
     },
     {
