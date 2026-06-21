@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brasa & Cia — Painel do Restaurante</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --carvao: #1A1410;
+    --carvao-2: #241B14;
+    --carvao-3: #2E2219;
+    --creme: #FFF8F0;
+    --creme-dim: #D8CCC0;
+    --fogo: #FF6B35;
+    --fogo-dim: #E85A2A;
+    --chama: #FFB627;
+    --brasa: #C1272D;
+    --acai: #5B8C3E;
+    --linha: rgba(255,248,240,0.08);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--carvao); color:var(--creme);
+    font-family:'Inter', sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Archivo Black', sans-serif; letter-spacing:-0.02em; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; border:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  .sidebar{
+    position:fixed; left:0; top:0; bottom:0; width:280px;
+    background:rgba(26,20,16,0.95); backdrop-filter:blur(10px);
+    border-right:1px solid var(--linha);
+    padding:20px; overflow-y:auto; z-index:90;
+  }
+
+  .sidebar-title{ font-size:14px; font-weight:800; margin-bottom:20px; }
+
+  .sidebar-item{
+    display:block; padding:12px 14px; margin-bottom:6px;
+    border-radius:10px; font-size:13.5px; font-weight:600;
+    color:var(--creme-dim); transition:all 0.2s;
+  }
+  .sidebar-item:hover{ color:var(--creme); }
+  .sidebar-item.active{ background:rgba(255,107,53,0.2); color:var(--fogo); }
+
+  .main{
+    margin-left:280px; padding:0;
+  }
+
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(26,20,16,0.88); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--linha);
+    padding:16px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+
+  .wrap{ max-width:100%; padding:24px; }
+
+  /* Seções */
+  .section{ display:none; }
+  .section.active{ display:block; }
+
+  /* Grid de cards */
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-bottom:24px; }
+  .card{ background:var(--carvao-2); border:1px solid var(--linha); border-radius:14px; padding:16px; }
+
+  /* Pedidos */
+  .orders-list{ display:flex; flex-direction:column; gap:12px; }
+  .order-card{
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:14px; padding:16px;
+  }
+  .order-header{ display:flex; justify-content:space-between; align-items:start; margin-bottom:12px; }
+  .order-id{ font-weight:800; font-family:'JetBrains Mono', monospace; }
+  .order-badge{
+    display:inline-block; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .order-badge.novo{ background:var(--fogo); color:var(--carvao); }
+  .order-badge.preparando{ background:var(--chama); color:var(--carvao); }
+  .order-badge.pronto{ background:var(--acai); color:var(--carvao); }
+  .order-badge.entregue{ background:rgba(255,248,240,0.2); color:var(--creme); }
+
+  .order-items{ font-size:12.5px; color:var(--creme-dim); margin:10px 0; line-height:1.4; }
+  .order-footer{ display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid var(--linha); }
+  .order-total{ font-family:'JetBrains Mono', monospace; font-weight:800; color:var(--chama); }
+  .order-actions{ display:flex; gap:6px; }
+  .order-btn{
+    padding:6px 12px; border-radius:8px; background:var(--carvao-3); color:var(--creme);
+    font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s;
+  }
+  .order-btn:hover{ background:var(--fogo); color:var(--carvao); }
+
+  /* Produtos */
+  .product-item{
+    display:flex; gap:12px; padding:16px;
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:14px; margin-bottom:12px;
+  }
+  .product-img{
+    width:80px; height:80px; border-radius:10px;
+    background-size:cover; background-position:center;
+    flex-shrink:0;
+  }
+  .product-info{ flex:1; }
+  .product-name{ font-weight:700; margin-bottom:4px; }
+  .product-cat{ font-size:11.5px; color:var(--creme-dim); margin-bottom:4px; }
+  .product-preco{ font-family:'JetBrains Mono', monospace; color:var(--chama); font-weight:800; }
+  .product-actions{ display:flex; gap:6px; align-items:flex-end; }
+  .product-actions button{
+    padding:6px 10px; border-radius:8px; background:var(--carvao-3);
+    color:var(--creme); font-size:11px; font-weight:700; cursor:pointer;
+  }
+  .product-actions button:hover{ background:var(--fogo); color:var(--carvao); }
+
+  /* Modal */
+  .modal{
+    display:none;
+    position:fixed; inset:0; z-index:200;
+    background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;
+  }
+  .modal.show{ display:flex; }
+  .modal-content{
+    background:var(--carvao); border:1px solid var(--linha);
+    border-radius:18px; padding:24px; width:90%; max-width:500px;
+    max-height:90vh; overflow-y:auto;
+  }
+
+  .modal-title{ font-size:18px; margin-bottom:16px; }
+  .modal-close{
+    position:absolute; top:16px; right:16px;
+    width:32px; height:32px; border-radius:8px;
+    background:var(--carvao-2); border:1px solid var(--linha);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+
+  .form-group{ margin-bottom:14px; }
+  .form-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--creme-dim); font-weight:700; margin-bottom:4px; display:block; }
+  .form-input{
+    width:100%; background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:10px; padding:10px 12px; color:var(--creme); font-size:13px;
+    outline:none;
+  }
+  .form-input:focus{ border-color:var(--fogo); }
+
+  .btn-primary, .btn-secondary{
+    padding:12px 20px; border-radius:12px; font-size:13.5px; font-weight:800;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .btn-primary{ background:var(--fogo); color:var(--carvao); }
+  .btn-primary:hover{ background:var(--fogo-dim); }
+  .btn-secondary{ background:var(--carvao-2); color:var(--creme); border:1px solid var(--linha); }
+  .btn-secondary:hover{ background:var(--carvao-3); }
+
+  .stats-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:24px; }
+  .stat-card{
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:14px; padding:16px;
+  }
+  .stat-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--creme-dim); font-weight:700; margin-bottom:6px; }
+  .stat-value{ font-size:28px; font-weight:800; color:var(--fogo); }
+
+  .toast{
+    position:fixed; bottom:20px; right:20px;
+    background:var(--creme); color:var(--carvao);
+    padding:13px 20px; border-radius:100px; font-size:13px; font-weight:700;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4); z-index:300;
+    opacity:0; pointer-events:none; transition:opacity 0.25s;
+  }
+  .toast.show{ opacity:1; }
+
+  @media (max-width:768px){
+    .sidebar{ width:0; opacity:0; }
+    .main{ margin-left:0; }
+  }
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-title">🔥 Brasa & Cia</div>
+    <a href="#" class="sidebar-item active" data-section="orders">📊 Pedidos</a>
+    <a href="#" class="sidebar-item" data-section="products">🍔 Produtos</a>
+    <a href="#" class="sidebar-item" data-section="categories">📁 Categorias</a>
+    <div style="margin-top:40px; padding-top:20px; border-top:1px solid var(--linha); font-size:11.5px; color:var(--creme-dim);">
+      v1.0 — Painel Admin<br>
+      Brasa & Cia 2024
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <h1 style="font-size:16px;">Painel do Restaurante</h1>
+      <button class="btn-secondary" onclick="logout()" style="padding:8px 16px; font-size:12px;">Sair</button>
+    </header>
+
+    <div class="wrap">
+
+      <!-- SEÇÃO: PEDIDOS -->
+      <section class="section active" id="orders">
+        <h2 style="font-size:20px; margin-bottom:16px;">Pedidos</h2>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Novos</div>
+            <div class="stat-value" id="countNovos">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Em preparo</div>
+            <div class="stat-value" id="countPreparo">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Prontos</div>
+            <div class="stat-value" id="countProntos">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Hoje</div>
+            <div class="stat-value" id="totalHoje">R$ 0</div>
+          </div>
+        </div>
+
+        <div id="ordersList" class="orders-list"></div>
+      </section>
+
+      <!-- SEÇÃO: PRODUTOS -->
+      <section class="section" id="products">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h2 style="font-size:20px;">Produtos</h2>
+          <button class="btn-primary" id="addProductBtn">+ Novo produto</button>
+        </div>
+
+        <div id="productsList"></div>
+      </section>
+
+      <!-- SEÇÃO: CATEGORIAS -->
+      <section class="section" id="categories">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h2 style="font-size:20px;">Categorias</h2>
+          <button class="btn-primary" id="addCategoryBtn">+ Nova categoria</button>
+        </div>
+
+        <div id="categoriesList" class="grid"></div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- MODAL: Novo Pedido -->
+  <div class="modal" id="orderModal">
+    <div class="modal-content" style="position:relative;">
+      <button class="modal-close" onclick="closeModal('orderModal')">✕</button>
+      <h3 class="modal-title">Novo pedido chegou!</h3>
+      <div id="orderModalContent"></div>
+      <div style="margin-top:16px; display:flex; gap:8px;">
+        <button class="btn-secondary" onclick="closeModal('orderModal')">Fechar</button>
+        <button class="btn-primary" onclick="acceptOrder()">Aceitar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Editar Produto -->
+  <div class="modal" id="productModal">
+    <div class="modal-content" style="position:relative;">
+      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
+      <h3 class="modal-title" id="productModalTitle">Novo produto</h3>
+      <form id="productForm" onsubmit="saveProduct(event)">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" id="productName" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select id="productCategory" class="form-input" required style="background:var(--carvao-2); border:1px solid var(--linha); border-radius:10px; padding:10px 12px; color:var(--creme);">
+            <option value="">Selecione...</option>
+            <option value="hamburgueres">Hambúrgueres</option>
+            <option value="pizzas">Pizzas</option>
+            <option value="sushi">Sushi</option>
+            <option value="acai">Açaí</option>
+            <option value="bebidas">Bebidas</option>
+            <option value="sobremesas">Sobremesas</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preço (R$)</label>
+          <input type="number" id="productPrice" class="form-input" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL da imagem</label>
+          <input type="text" id="productImage" class="form-input" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label style="display:flex; gap:8px; align-items:center; cursor:pointer;">
+            <input type="checkbox" id="productActive" checked>
+            <span style="font-size:13px;">Ativo (visível no cardápio)</span>
+          </label>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-secondary" onclick="closeModal('productModal')" style="flex:1;">Cancelar</button>
+          <button type="submit" class="btn-primary" style="flex:1;">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Editar Categoria -->
+  <div class="modal" id="categoryModal">
+    <div class="modal-content" style="position:relative;">
+      <button class="modal-close" onclick="closeModal('categoryModal')">✕</button>
+      <h3 class="modal-title" id="categoryModalTitle">Nova categoria</h3>
+      <form id="categoryForm" onsubmit="saveCategory(event)">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" id="categoryName" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Emoji/Ícone</label>
+          <input type="text" id="categoryIcon" class="form-input" placeholder="🍔" maxlength="4" required>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-secondary" onclick="closeModal('categoryModal')" style="flex:1;">Cancelar</button>
+          <button type="submit" class="btn-primary" style="flex:1;">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+  const PRODUCTS = [
+    { id:1, cat:'hamburgueres', nome:'Brasa Bacon', preco:28.90, img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500', ativo:true },
+    { id:2, cat:'hamburgueres', nome:'Cheddar Melt', preco:26.50, img:'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=500', ativo:true },
+    { id:3, cat:'hamburgueres', nome:'Veggie da Brasa', preco:24.90, img:'https://images.unsplash.com/photo-1525059696034-4967a729002e?w=500', ativo:true },
+    { id:4, cat:'hamburgueres', nome:'Clássico Brasa', preco:22.90, img:'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=500', ativo:true },
+    { id:5, cat:'pizzas', nome:'Pizza Calabresa', preco:42.00, img:'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=500', ativo:true },
+    { id:6, cat:'pizzas', nome:'Pizza Margherita', preco:38.00, img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500', ativo:true },
+    { id:7, cat:'sushi', nome:'Combo Salmão (20pç)', preco:54.90, img:'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500', ativo:true },
+    { id:10, cat:'acai', nome:'Açaí 500ml Completo', preco:19.90, img:'https://images.unsplash.com/photo-1490323914169-d3ef9ba88f10?w=500', ativo:true },
+  ];
+
+  const CATEGORIES = [
+    { id:1, nome:'Hambúrgueres', icon:'🍔' },
+    { id:2, nome:'Pizzas', icon:'🍕' },
+    { id:3, nome:'Sushi', icon:'🍣' },
+    { id:4, nome:'Açaí', icon:'🥣' },
+    { id:5, nome:'Bebidas', icon:'🥤' },
+    { id:6, nome:'Sobremesas', icon:'🍰' },
+  ];
+
+  let orders = [
+    { id:'PED-001', status:'novo', customer:'João Silva', items:['Brasa Bacon x2', 'Coca-Cola x2'], total:85.70, time:new Date().toLocaleTimeString() },
+    { id:'PED-002', status:'preparando', customer:'Maria Santos', items:['Pizza Margherita x1'], total:38.00, time:new Date(Date.now()-300000).toLocaleTimeString() },
+    { id:'PED-003', status:'pronto', customer:'Carlos Oliveira', items:['Açaí Power x1'], total:24.90, time:new Date(Date.now()-600000).toLocaleTimeString() },
+  ];
+
+  let editingProduct = null;
+  let editingCategory = null;
+
+  const fmt = (n) => 'R$ ' + n.toFixed(2).replace('.', ',');
+
+  // Navegação sidebar
+  document.querySelectorAll('[data-section]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const section = item.dataset.section;
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      item.classList.add('active');
+      document.getElementById(section).classList.add('active');
+    });
+  });
+
+  function renderOrders(){
+    const list = document.getElementById('ordersList');
+    list.innerHTML = orders.map(order => {
+      const badges = {
+        'novo': 'novo',
+        'preparando': 'preparando',
+        'pronto': 'pronto',
+        'entregue': 'entregue'
+      };
+      return `
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <div class="order-id">${order.id}</div>
+              <div style="font-size:12px; color:var(--creme-dim); margin-top:2px;">${order.time}</div>
+            </div>
+            <span class="order-badge ${badges[order.status]}">${order.status}</span>
+          </div>
+          <div style="font-size:13px; font-weight:600; margin-bottom:8px;">${order.customer}</div>
+          <div class="order-items">
+            ${order.items.join('<br>')}
+          </div>
+          <div class="order-footer">
+            <div class="order-total">${fmt(order.total)}</div>
+            <div class="order-actions">
+              ${order.status === 'novo' ? `<button class="order-btn" onclick="updateOrderStatus('${order.id}', 'preparando')">Preparar</button>` : ''}
+              ${order.status === 'preparando' ? `<button class="order-btn" onclick="updateOrderStatus('${order.id}', 'pronto')">Pronto</button>` : ''}
+              ${order.status === 'pronto' ? `<button class="order-btn" onclick="updateOrderStatus('${order.id}', 'entregue')">Entregar</button>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    updateStats();
+  }
+
+  function updateStats(){
+    const novos = orders.filter(o => o.status === 'novo').length;
+    const preparo = orders.filter(o => o.status === 'preparando').length;
+    const prontos = orders.filter(o => o.status === 'pronto').length;
+    const total = orders.reduce((s, o) => s + o.total, 0);
+
+    document.getElementById('countNovos').textContent = novos;
+    document.getElementById('countPreparo').textContent = preparo;
+    document.getElementById('countProntos').textContent = prontos;
+    document.getElementById('totalHoje').textContent = fmt(total);
+  }
+
+  function updateOrderStatus(id, status){
+    const order = orders.find(o => o.id === id);
+    if(order) order.status = status;
+    renderOrders();
+    showToast(`Pedido ${id} → ${status}`);
+  }
+
+  function renderProducts(){
+    const list = document.getElementById('productsList');
+    list.innerHTML = PRODUCTS.map(p => `
+      <div class="product-item">
+        <div class="product-img" style="background-image:url('${p.img}')"></div>
+        <div class="product-info">
+          <div class="product-name">${p.nome}</div>
+          <div class="product-cat">${p.cat}</div>
+          <div class="product-preco">${fmt(p.preco)}</div>
+        </div>
+        <div class="product-actions">
+          <button onclick="editProduct(${p.id})">Editar</button>
+          <button onclick="deleteProduct(${p.id})" style="background:var(--brasa);">Deletar</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderCategories(){
+    const list = document.getElementById('categoriesList');
+    list.innerHTML = CATEGORIES.map(c => `
+      <div class="card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; min-height:140px;">
+        <div style="font-size:40px;">${c.icon}</div>
+        <div style="text-align:center; font-weight:700;">${c.nome}</div>
+        <div style="display:flex; gap:6px;">
+          <button class="order-btn" onclick="editCategory(${c.id})">Editar</button>
+          <button class="order-btn" style="background:var(--brasa);" onclick="deleteCategory(${c.id})">Deletar</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('addProductBtn').addEventListener('click', () => {
+    editingProduct = null;
+    document.getElementById('productModalTitle').textContent = 'Novo produto';
+    document.getElementById('productForm').reset();
+    document.getElementById('productModal').classList.add('show');
+  });
+
+  function editProduct(id){
+    const p = PRODUCTS.find(x => x.id === id);
+    if(!p) return;
+    editingProduct = id;
+    document.getElementById('productModalTitle').textContent = 'Editar: ' + p.nome;
+    document.getElementById('productName').value = p.nome;
+    document.getElementById('productCategory').value = p.cat;
+    document.getElementById('productPrice').value = p.preco;
+    document.getElementById('productImage').value = p.img;
+    document.getElementById('productActive').checked = p.ativo;
+    document.getElementById('productModal').classList.add('show');
+  }
+
+  function deleteProduct(id){
+    if(confirm('Deletar este produto?')){
+      const idx = PRODUCTS.findIndex(p => p.id === id);
+      if(idx !== -1) PRODUCTS.splice(idx, 1);
+      renderProducts();
+      showToast('Produto deletado');
+    }
+  }
+
+  function saveProduct(e){
+    e.preventDefault();
+    const name = document.getElementById('productName').value;
+    const cat = document.getElementById('productCategory').value;
+    const preco = parseFloat(document.getElementById('productPrice').value);
+    const img = document.getElementById('productImage').value || 'https://via.placeholder.com/500';
+    const ativo = document.getElementById('productActive').checked;
+
+    if(editingProduct){
+      const p = PRODUCTS.find(x => x.id === editingProduct);
+      if(p) Object.assign(p, { nome:name, cat, preco, img, ativo });
+    } else {
+      const newId = Math.max(...PRODUCTS.map(p => p.id), 0) + 1;
+      PRODUCTS.push({ id:newId, nome:name, cat, preco, img, ativo });
+    }
+
+    closeModal('productModal');
+    renderProducts();
+    showToast(editingProduct ? 'Produto atualizado' : 'Produto adicionado');
+  }
+
+  document.getElementById('addCategoryBtn').addEventListener('click', () => {
+    editingCategory = null;
+    document.getElementById('categoryModalTitle').textContent = 'Nova categoria';
+    document.getElementById('categoryForm').reset();
+    document.getElementById('categoryModal').classList.add('show');
+  });
+
+  function editCategory(id){
+    const c = CATEGORIES.find(x => x.id === id);
+    if(!c) return;
+    editingCategory = id;
+    document.getElementById('categoryModalTitle').textContent = 'Editar: ' + c.nome;
+    document.getElementById('categoryName').value = c.nome;
+    document.getElementById('categoryIcon').value = c.icon;
+    document.getElementById('categoryModal').classList.add('show');
+  }
+
+  function deleteCategory(id){
+    if(confirm('Deletar esta categoria?')){
+      const idx = CATEGORIES.findIndex(c => c.id === id);
+      if(idx !== -1) CATEGORIES.splice(idx, 1);
+      renderCategories();
+      showToast('Categoria deletada');
+    }
+  }
+
+  function saveCategory(e){
+    e.preventDefault();
+    const nome = document.getElementById('categoryName').value;
+    const icon = document.getElementById('categoryIcon').value;
+
+    if(editingCategory){
+      const c = CATEGORIES.find(x => x.id === editingCategory);
+      if(c) Object.assign(c, { nome, icon });
+    } else {
+      const newId = Math.max(...CATEGORIES.map(c => c.id), 0) + 1;
+      CATEGORIES.push({ id:newId, nome, icon });
+    }
+
+    closeModal('categoryModal');
+    renderCategories();
+    showToast(editingCategory ? 'Categoria atualizada' : 'Categoria adicionada');
+  }
+
+  function closeModal(id){
+    document.getElementById(id).classList.remove('show');
+  }
+
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    toastMsg.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function logout(){
+    if(confirm('Sair da conta?')){
+      window.location.href = 'index.html';
+    }
+  }
+
+  // Inicializar
+  renderOrders();
+  renderProducts();
+  renderCategories();
+
+  // Simular novo pedido a cada 15 segundos (demo)
+  setInterval(() => {
+    if(Math.random() > 0.7){
+      const newOrder = {
+        id: 'PED-' + String(Math.floor(Math.random() * 10000)).padStart(3, '0'),
+        status: 'novo',
+        customer: ['Ana', 'Bruno', 'Carla', 'Daniel'][Math.floor(Math.random() * 4)],
+        items: ['Brasa Bacon x1', 'Refrigerante x1'],
+        total: Math.random() * 100,
+        time: new Date().toLocaleTimeString()
+      };
+      orders.unshift(newOrder);
+      renderOrders();
+      showToast('📱 Novo pedido chegou!');
+    }
+  }, 15000);
+</script>
+</body>
+</html>

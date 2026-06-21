@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Dashboard — Gerenciamento de Empresas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --carvao: #1A1410;
+    --carvao-2: #241B14;
+    --carvao-3: #2E2219;
+    --creme: #FFF8F0;
+    --creme-dim: #D8CCC0;
+    --fogo: #FF6B35;
+    --fogo-dim: #E85A2A;
+    --chama: #FFB627;
+    --brasa: #C1272D;
+    --acai: #5B8C3E;
+    --linha: rgba(255,248,240,0.08);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--carvao); color:var(--creme);
+    font-family:'Inter', sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Archivo Black', sans-serif; letter-spacing:-0.02em; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; border:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  .sidebar{
+    position:fixed; left:0; top:0; bottom:0; width:280px;
+    background:rgba(26,20,16,0.95); backdrop-filter:blur(10px);
+    border-right:1px solid var(--linha);
+    padding:20px; overflow-y:auto; z-index:90;
+  }
+
+  .sidebar-title{
+    font-size:14px; font-weight:800; margin-bottom:20px;
+    background:linear-gradient(135deg, var(--fogo), var(--brasa));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+
+  .sidebar-item{
+    display:block; padding:12px 14px; margin-bottom:6px;
+    border-radius:10px; font-size:13.5px; font-weight:600;
+    color:var(--creme-dim); transition:all 0.2s;
+  }
+  .sidebar-item:hover{ color:var(--creme); }
+  .sidebar-item.active{ background:rgba(255,107,53,0.2); color:var(--fogo); }
+
+  .main{
+    margin-left:280px; padding:0;
+  }
+
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(26,20,16,0.88); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--linha);
+    padding:16px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+
+  .wrap{ max-width:1200px; margin:0 auto; padding:24px; }
+
+  .section{ display:none; }
+  .section.active{ display:block; }
+
+  /* Filtros */
+  .filters{
+    display:flex; gap:12px; margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  .filter-input{
+    flex:1; min-width:200px;
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:12px; padding:10px 14px; color:var(--creme); font-size:13px;
+    outline:none;
+  }
+  .filter-input:focus{ border-color:var(--fogo); }
+
+  /* Grid de empresas */
+  .companies-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));
+    gap:16px;
+  }
+
+  .company-card{
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:16px; padding:20px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+
+  .company-header{
+    display:flex; align-items:start; gap:14px;
+  }
+
+  .company-logo{
+    width:60px; height:60px; border-radius:12px;
+    background-size:cover; background-position:center;
+    background-color:var(--carvao-3); flex-shrink:0;
+  }
+
+  .company-info{ flex:1; }
+
+  .company-name{
+    font-size:15px; font-weight:800; margin-bottom:2px;
+  }
+
+  .company-category{
+    font-size:11.5px; color:var(--creme-dim); text-transform:uppercase;
+    letter-spacing:0.05em; margin-bottom:6px;
+  }
+
+  .company-rating{
+    font-size:12px; color:var(--chama); font-weight:700;
+  }
+
+  .company-stats{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    padding:12px; background:var(--carvao-3); border-radius:12px;
+    font-size:12px;
+  }
+
+  .stat{
+    display:flex; flex-direction:column;
+  }
+
+  .stat-label{ color:var(--creme-dim); font-size:10.5px; margin-bottom:2px; }
+
+  .stat-value{ font-weight:800; color:var(--fogo); }
+
+  .company-footer{
+    display:flex; align-items:center; gap:10px;
+    padding-top:12px; border-top:1px solid var(--linha);
+  }
+
+  .status-toggle{
+    display:flex; align-items:center; gap:8px; flex:1;
+  }
+
+  .toggle{
+    width:44px; height:24px; border-radius:12px;
+    background:var(--carvao); border:2px solid var(--linha);
+    cursor:pointer; position:relative; transition:all 0.3s;
+  }
+
+  .toggle.active{
+    background:var(--acai); border-color:var(--acai);
+  }
+
+  .toggle::after{
+    content:'';
+    position:absolute; top:2px; left:2px;
+    width:18px; height:18px; border-radius:10px;
+    background:var(--creme); transition:left 0.3s;
+  }
+
+  .toggle.active::after{
+    left:20px;
+  }
+
+  .status-label{
+    font-size:11.5px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+
+  .status-active{ color:var(--acai); }
+  .status-inactive{ color:var(--creme-dim); }
+
+  .company-actions{
+    display:flex; gap:6px;
+  }
+
+  .action-btn{
+    padding:6px 10px; border-radius:8px; background:var(--carvao-3);
+    color:var(--creme); font-size:11px; font-weight:700;
+    cursor:pointer; transition:all 0.2s;
+  }
+
+  .action-btn:hover{ background:var(--fogo); color:var(--carvao); }
+
+  .action-btn.danger:hover{ background:var(--brasa); }
+
+  /* Modal */
+  .modal{
+    display:none;
+    position:fixed; inset:0; z-index:200;
+    background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;
+  }
+
+  .modal.show{ display:flex; }
+
+  .modal-content{
+    background:var(--carvao); border:1px solid var(--linha);
+    border-radius:18px; padding:24px; width:90%; max-width:500px;
+    max-height:90vh; overflow-y:auto; position:relative;
+  }
+
+  .modal-close{
+    position:absolute; top:16px; right:16px;
+    width:32px; height:32px; border-radius:8px;
+    background:var(--carvao-2); border:1px solid var(--linha);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+
+  .modal-title{ font-size:18px; margin-bottom:20px; }
+
+  .form-group{ margin-bottom:14px; }
+
+  .form-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--creme-dim); font-weight:700; margin-bottom:4px; display:block;
+  }
+
+  .form-input{
+    width:100%; background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:10px; padding:10px 12px; color:var(--creme); font-size:13px;
+    outline:none;
+  }
+
+  .form-input:focus{ border-color:var(--fogo); }
+
+  .btn-primary, .btn-secondary{
+    padding:12px 20px; border-radius:12px; font-size:13.5px; font-weight:800;
+    cursor:pointer; transition:all 0.2s;
+  }
+
+  .btn-primary{ background:var(--fogo); color:var(--carvao); }
+
+  .btn-primary:hover{ background:var(--fogo-dim); }
+
+  .btn-secondary{ background:var(--carvao-2); color:var(--creme); border:1px solid var(--linha); }
+
+  .btn-secondary:hover{ background:var(--carvao-3); }
+
+  .stats-header{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:16px; margin-bottom:24px;
+  }
+
+  .stat-card{
+    background:var(--carvao-2); border:1px solid var(--linha);
+    border-radius:14px; padding:16px;
+  }
+
+  .stat-card-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--creme-dim); font-weight:700; margin-bottom:6px;
+  }
+
+  .stat-card-value{ font-size:28px; font-weight:800; color:var(--fogo); }
+
+  .toast{
+    position:fixed; bottom:20px; right:20px;
+    background:var(--creme); color:var(--carvao);
+    padding:13px 20px; border-radius:100px; font-size:13px; font-weight:700;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4); z-index:300;
+    opacity:0; pointer-events:none; transition:opacity 0.25s;
+  }
+
+  .toast.show{ opacity:1; }
+
+  @media (max-width:768px){
+    .sidebar{ width:0; opacity:0; }
+    .main{ margin-left:0; }
+    .companies-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-title">🔥 Master</div>
+    <a href="#" class="sidebar-item active" data-section="companies">🏢 Empresas</a>
+    <a href="#" class="sidebar-item" data-section="analytics">📊 Analytics</a>
+    <a href="#" class="sidebar-item" data-section="settings">⚙️ Configurações</a>
+    <div style="margin-top:40px; padding-top:20px; border-top:1px solid var(--linha); font-size:11.5px; color:var(--creme-dim);">
+      Master Control v1.0<br>
+      Platform 2024
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <h1 style="font-size:16px;">Master Dashboard</h1>
+      <button class="btn-secondary" onclick="logout()" style="padding:8px 16px; font-size:12px;">Logout</button>
+    </header>
+
+    <div class="wrap">
+
+      <!-- SEÇÃO: EMPRESAS -->
+      <section class="section active" id="companies">
+        <div style="margin-bottom:24px;">
+          <h2 style="font-size:20px; margin-bottom:6px;">Gerenciar Empresas</h2>
+          <p style="font-size:13px; color:var(--creme-dim);">Ative, desative ou edite informações das empresas parceiras.</p>
+        </div>
+
+        <div class="stats-header">
+          <div class="stat-card">
+            <div class="stat-card-label">Total de empresas</div>
+            <div class="stat-card-value" id="statTotal">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Ativas</div>
+            <div class="stat-card-value" id="statActive">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Inativas</div>
+            <div class="stat-card-value" id="statInactive">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Receita total</div>
+            <div class="stat-card-value" id="statRevenue">R$ 0</div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-bottom:20px;">
+          <button class="btn-primary" id="addCompanyBtn">+ Nova empresa</button>
+          <input type="text" id="searchInput" class="filter-input" placeholder="Buscar por nome..." style="flex:1;">
+        </div>
+
+        <div class="companies-grid" id="companiesList"></div>
+      </section>
+
+      <!-- SEÇÃO: ANALYTICS -->
+      <section class="section" id="analytics">
+        <h2 style="font-size:20px; margin-bottom:20px;">Analytics</h2>
+
+        <div class="companies-grid" style="grid-template-columns:1fr;">
+          <div style="background:var(--carvao-2); border:1px solid var(--linha); border-radius:16px; padding:24px;">
+            <h3 style="margin-bottom:16px;">Receita por empresa (últimos 30 dias)</h3>
+            <div id="revenueList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO: CONFIGURAÇÕES -->
+      <section class="section" id="settings">
+        <h2 style="font-size:20px; margin-bottom:20px;">Configurações</h2>
+
+        <div style="background:var(--carvao-2); border:1px solid var(--linha); border-radius:16px; padding:20px; max-width:500px;">
+          <div class="form-group">
+            <label class="form-label">Taxa padrão de entrega (%)</label>
+            <input type="number" class="form-input" value="15" step="0.1">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Comissão por pedido (%)</label>
+            <input type="number" class="form-input" value="8" step="0.1">
+          </div>
+
+          <div class="form-group">
+            <label style="display:flex; gap:8px; align-items:center; cursor:pointer;">
+              <input type="checkbox" checked>
+              <span style="font-size:13px;">Permitir novas inscrições</span>
+            </label>
+          </div>
+
+          <button class="btn-primary" style="width:100%; margin-top:16px;">Salvar configurações</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- MODAL: Nova/Editar Empresa -->
+  <div class="modal" id="companyModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('companyModal')">✕</button>
+      <h3 class="modal-title" id="companyModalTitle">Nova empresa</h3>
+      <form id="companyForm" onsubmit="saveCompany(event)">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" id="companyName" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select id="companyCategory" class="form-input" required style="background:var(--carvao-2); border:1px solid var(--linha); border-radius:10px; padding:10px 12px; color:var(--creme);">
+            <option value="">Selecione...</option>
+            <option value="restaurante">Restaurante</option>
+            <option value="lanchonete">Lanchonete</option>
+            <option value="pizzaria">Pizzaria</option>
+            <option value="sushi">Sushi Bar</option>
+            <option value="cafeteria">Cafeteria</option>
+            <option value="acaiteria">Açaiteria</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="companyEmail" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Telefone</label>
+          <input type="tel" id="companyPhone" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Logo URL</label>
+          <input type="text" id="companyLogo" class="form-input" placeholder="https://...">
+        </div>
+
+        <div class="form-group">
+          <label style="display:flex; gap:8px; align-items:center; cursor:pointer;">
+            <input type="checkbox" id="companyActive" checked>
+            <span style="font-size:13px;">Ativo (pode receber pedidos)</span>
+          </label>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-secondary" onclick="closeModal('companyModal')" style="flex:1;">Cancelar</button>
+          <button type="submit" class="btn-primary" style="flex:1;">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+  let companies = [
+    {
+      id:1, nome:'🔥 Brasa & Cia', cat:'restaurante', logo:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100',
+      email:'contato@brasa.com', phone:'(11) 98765-4321', ativo:true, pedidos:142, receita:8540.50
+    },
+    {
+      id:2, nome:'🍕 Pizzaria Napoli', cat:'pizzaria', logo:'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=100',
+      email:'contato@napoli.com', phone:'(11) 91234-5678', ativo:true, pedidos:98, receita:5230.00
+    },
+    {
+      id:3, nome:'🍣 Sushi Express', cat:'sushi', logo:'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=100',
+      email:'contato@sushi.com', phone:'(11) 99999-0000', ativo:true, pedidos:75, receita:4050.75
+    },
+    {
+      id:4, nome:'☕ Coffee House', cat:'cafeteria', logo:'https://images.unsplash.com/photo-1495474472606-4d71bcdd2085?w=100',
+      email:'contato@coffee.com', phone:'(11) 98888-1111', ativo:false, pedidos:45, receita:2100.00
+    },
+    {
+      id:5, nome:'🥣 Açaí Natural', cat:'acaiteria', logo:'https://images.unsplash.com/photo-1490323914169-d3ef9ba88f10?w=100',
+      email:'contato@acai.com', phone:'(11) 97777-2222', ativo:true, pedidos:156, receita:3850.25
+    },
+  ];
+
+  let editingCompanyId = null;
+  let filteredCompanies = [...companies];
+
+  const fmt = (n) => 'R$ ' + n.toFixed(2).replace('.', ',');
+
+  // Navegação sidebar
+  document.querySelectorAll('[data-section]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const section = item.dataset.section;
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      item.classList.add('active');
+      document.getElementById(section).classList.add('active');
+    });
+  });
+
+  function renderCompanies(list = companies){
+    const container = document.getElementById('companiesList');
+    container.innerHTML = list.map(c => `
+      <div class="company-card">
+        <div class="company-header">
+          <div class="company-logo" style="background-image:url('${c.logo}')"></div>
+          <div class="company-info">
+            <div class="company-name">${c.nome}</div>
+            <div class="company-category">${c.cat}</div>
+            <div class="company-rating">⭐ 4.8 (${c.pedidos} pedidos)</div>
+          </div>
+        </div>
+
+        <div class="company-stats">
+          <div class="stat">
+            <div class="stat-label">Receita</div>
+            <div class="stat-value">${fmt(c.receita)}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Pedidos</div>
+            <div class="stat-value">${c.pedidos}</div>
+          </div>
+        </div>
+
+        <div class="company-footer">
+          <div class="status-toggle">
+            <div class="toggle ${c.ativo ? 'active' : ''}" onclick="toggleCompany(${c.id})"></div>
+            <span class="status-label ${c.ativo ? 'status-active' : 'status-inactive'}">
+              ${c.ativo ? 'ATIVO' : 'INATIVO'}
+            </span>
+          </div>
+          <div class="company-actions">
+            <button class="action-btn" onclick="editCompany(${c.id})">Editar</button>
+            <button class="action-btn danger" onclick="deleteCompany(${c.id})">Deletar</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    updateStats();
+  }
+
+  function updateStats(){
+    const total = companies.length;
+    const active = companies.filter(c => c.ativo).length;
+    const inactive = total - active;
+    const revenue = companies.reduce((s, c) => s + c.receita, 0);
+
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statInactive').textContent = inactive;
+    document.getElementById('statRevenue').textContent = fmt(revenue);
+
+    // Analytics
+    const revenueList = document.getElementById('revenueList');
+    if(revenueList){
+      revenueList.innerHTML = companies
+        .sort((a, b) => b.receita - a.receita)
+        .map(c => `
+          <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--linha);">
+            <span>${c.nome}</span>
+            <span style="font-weight:800; color:var(--fogo);">${fmt(c.receita)}</span>
+          </div>
+        `).join('');
+    }
+  }
+
+  function toggleCompany(id){
+    const c = companies.find(x => x.id === id);
+    if(c){
+      c.ativo = !c.ativo;
+      renderCompanies();
+      showToast(`${c.nome} ${c.ativo ? 'ativado' : 'desativado'}`);
+    }
+  }
+
+  function editCompany(id){
+    const c = companies.find(x => x.id === id);
+    if(!c) return;
+    editingCompanyId = id;
+    document.getElementById('companyModalTitle').textContent = 'Editar: ' + c.nome;
+    document.getElementById('companyName').value = c.nome.replace(/^[🔥🍕🍣☕🥣] /, '');
+    document.getElementById('companyCategory').value = c.cat;
+    document.getElementById('companyEmail').value = c.email;
+    document.getElementById('companyPhone').value = c.phone;
+    document.getElementById('companyLogo').value = c.logo;
+    document.getElementById('companyActive').checked = c.ativo;
+    document.getElementById('companyModal').classList.add('show');
+  }
+
+  function deleteCompany(id){
+    if(confirm('Deletar esta empresa? Esta ação é irreversível.')){
+      companies = companies.filter(c => c.id !== id);
+      renderCompanies();
+      showToast('Empresa deletada');
+    }
+  }
+
+  function saveCompany(e){
+    e.preventDefault();
+    const name = document.getElementById('companyName').value;
+    const cat = document.getElementById('companyCategory').value;
+    const email = document.getElementById('companyEmail').value;
+    const phone = document.getElementById('companyPhone').value;
+    const logo = document.getElementById('companyLogo').value || 'https://via.placeholder.com/100';
+    const ativo = document.getElementById('companyActive').checked;
+
+    if(editingCompanyId){
+      const c = companies.find(x => x.id === editingCompanyId);
+      if(c) Object.assign(c, { nome:name, cat, email, phone, logo, ativo });
+    } else {
+      const newId = Math.max(...companies.map(c => c.id), 0) + 1;
+      companies.push({
+        id:newId, nome:name, cat, email, phone, logo, ativo,
+        pedidos:0, receita:0
+      });
+    }
+
+    closeModal('companyModal');
+    renderCompanies();
+    showToast(editingCompanyId ? 'Empresa atualizada' : 'Empresa adicionada');
+  }
+
+  document.getElementById('addCompanyBtn').addEventListener('click', () => {
+    editingCompanyId = null;
+    document.getElementById('companyModalTitle').textContent = 'Nova empresa';
+    document.getElementById('companyForm').reset();
+    document.getElementById('companyModal').classList.add('show');
+  });
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    filteredCompanies = companies.filter(c =>
+      c.nome.toLowerCase().includes(query) ||
+      c.email.toLowerCase().includes(query)
+    );
+    renderCompanies(filteredCompanies);
+  });
+
+  function closeModal(id){
+    document.getElementById(id).classList.remove('show');
+  }
+
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    toastMsg.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function logout(){
+    if(confirm('Fazer logout?')){
+      window.location.href = 'index.html';
+    }
+  }
+
+  // Inicializar
+  renderCompanies();
+</script>
+</body>
+</html>
