@@ -236,8 +236,14 @@
       <section class="section" id="products">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
           <h2 style="font-size:20px;">Produtos</h2>
-          <button class="btn-primary" id="addProductBtn">+ Novo produto</button>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-secondary" id="downloadCsvBtn" style="padding:10px 16px; font-size:12px;">📥 Modelo CSV</button>
+            <button class="btn-primary" id="importCsvBtn" style="padding:10px 16px; font-size:12px;">📤 Importar CSV</button>
+            <button class="btn-primary" id="addProductBtn">+ Novo</button>
+          </div>
         </div>
+
+        <input type="file" id="csvFileInput" accept=".csv" style="display:none;">
 
         <div style="margin-bottom:16px;">
           <input type="text" id="productSearch" class="form-input" placeholder="Buscar produto por nome ou descrição..." style="max-width:400px;">
@@ -364,6 +370,71 @@
     { id:5, nome:'Bebidas', icon:'🥤' },
     { id:6, nome:'Sobremesas', icon:'🍰' },
   ];
+
+  // ===================== CSV IMPORT =====================
+  function csvEscape(v){ return `"${String(v).replace(/"/g,'""')}"`; }
+
+  function downloadCsvModel(){
+    const header = ['nome','descricao','categoria','preco','imagem'];
+    const rows = PRODUCTS.filter(p => p.id <= 15).map(p => [
+      p.nome, p.desc || '', p.cat, p.preco, p.img
+    ]);
+    const csv = [header.join(',')].concat(rows.map(r => r.map(csvEscape).join(','))).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type:'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'produtos-modelo.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Modelo CSV baixado');
+  }
+
+  function importCsv(file){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const lines = e.target.result.split('\n').filter(l => l.trim());
+      if(lines.length < 2){ showToast('CSV vazio ou inválido'); return; }
+
+      const cols = lines[0].split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      const nomeIdx = cols.indexOf('nome');
+      const descIdx = cols.indexOf('descricao');
+      const catIdx = cols.indexOf('categoria');
+      const precoIdx = cols.indexOf('preco');
+      const imgIdx = cols.indexOf('imagem');
+      if(nomeIdx === -1 || precoIdx === -1){ showToast('Colunas obrigatórias: nome, preco'); return; }
+
+      let added = 0;
+      for(let i=1; i<lines.length; i++){
+        const vals = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g,''));
+        const nome = vals[nomeIdx];
+        const preco = parseFloat(vals[precoIdx]);
+        if(!nome || isNaN(preco)) continue;
+        const desc = descIdx >= 0 ? vals[descIdx] || '' : '';
+        const cat = catIdx >= 0 ? vals[catIdx] || 'outros' : 'outros';
+        const img = imgIdx >= 0 ? vals[imgIdx] || '' : '';
+
+        const newId = Math.max(...PRODUCTS.map(p => p.id), 0) + 1;
+        PRODUCTS.push({ id:newId, nome, cat, desc, preco, img: img || 'https://via.placeholder.com/500', ativo:true });
+
+        if(!CATEGORIES.find(c => c.nome.toLowerCase() === cat.toLowerCase())){
+          const newCatId = Math.max(...CATEGORIES.map(c => c.id), 0) + 1;
+          CATEGORIES.push({ id:newCatId, nome:cat.charAt(0).toUpperCase()+cat.slice(1), icon:'📁' });
+        }
+        added++;
+      }
+      renderCategories();
+      renderProducts(document.getElementById('productSearch').value.trim());
+      showToast(`${added} produto(s) importado(s)`);
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+
+  document.getElementById('downloadCsvBtn').addEventListener('click', downloadCsvModel);
+  document.getElementById('importCsvBtn').addEventListener('click', () => document.getElementById('csvFileInput').click());
+  document.getElementById('csvFileInput').addEventListener('change', function(){
+    if(this.files && this.files[0]) importCsv(this.files[0]);
+    this.value = '';
+  });
 
   let orders = [
     { id:'PED-001', status:'novo', customer:'João Silva', items:['Brasa Bacon x2', 'Coca-Cola x2'], total:85.70, time:new Date().toLocaleTimeString() },
