@@ -198,6 +198,14 @@
 
   const VALOR_MINIMO = 20.00;
 
+  const PRODUCTS = [
+    { id:1, preco:28.90 }, { id:2, preco:26.50 }, { id:3, preco:24.90 }, { id:4, preco:22.90 },
+    { id:5, preco:42.00 }, { id:6, preco:38.00 }, { id:7, preco:44.00 }, { id:8, preco:54.90 },
+    { id:9, preco:32.00 }, { id:10, preco:19.90 }, { id:11, preco:24.90 }, { id:12, preco:6.00 },
+    { id:13, preco:9.50 }, { id:14, preco:18.00 }, { id:15, preco:21.00 },
+    { id:101, preco:0 }, { id:102, preco:0 }, { id:103, preco:0 },
+  ];
+
   const REWARD_PRODUCTS = {
     '🥤': { id:101, nome:'Refrigerante lata (recompensa)', preco:0 },
     '🍟': { id:102, nome:'Porção de batata (recompensa)', preco:0 },
@@ -217,13 +225,10 @@
 
   function cartSubtotal(){
     const cart = loadCart();
-    if(window.PRODUCTS){
-      return cart.reduce((s,i)=>{
-        const p = window.PRODUCTS.find(x=>x.id===i.productId);
-        return p ? s + (p.preco * i.qty) : s;
-      }, 0);
-    }
-    return 0;
+    return cart.reduce((s,i)=>{
+      const p = PRODUCTS.find(x=>x.id===i.productId);
+      return p ? s + (p.preco * i.qty) : s;
+    }, 0);
   }
 
   function checkMinimum(){
